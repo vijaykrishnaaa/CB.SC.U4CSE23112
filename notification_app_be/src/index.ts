@@ -1,23 +1,16 @@
 import express from "express";
-import dotenv from "dotenv";
-import { initLogger, Log } from "../../logging_middleware/src";
+import notificationRoutes from "./routes/notificationRoutes";
+import { Log } from "./middleware/logger";
 
-dotenv.config();
+console.log("TOKEN LOADED:", process.env.AUTH_TOKEN ? process.env.AUTH_TOKEN.substring(0, 30) + "..." : "EMPTY");
 
 const app = express();
 app.use(express.json());
+app.use("/api", notificationRoutes);
 
-// Initialize logger with your Bearer token at startup
-initLogger(process.env.AUTH_TOKEN || "");
+const PORT = process.env.PORT || 3000;
 
-// Log app startup
-Log("backend", "info", "config", "Notification backend app started successfully");
-
-app.get("/health", async (req, res) => {
-    await Log("backend", "info", "route", "Health check endpoint hit");
-    res.json({ status: "ok" });
-});
-
-app.listen(process.env.PORT || 3000, () => {
-    console.log(`Server running on port ${process.env.PORT || 3000}`);
+app.listen(PORT, async () => {
+    await Log("backend", "info", "config", `Notification backend server started on port ${PORT}`);
+    console.log(`Server running on http://localhost:${PORT}`);
 });
